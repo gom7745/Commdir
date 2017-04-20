@@ -1,0 +1,112 @@
+This directory includes sources used in the following paper:
+
+Po-Wei Wang, Ching-pei Lee, and Chih-Jen Lin, The Common-directions Method for
+Regularized Empirical Risk Minimization, technical report, 2016.
+You will be able to regenerate experiment results in the paper. However,
+results may be slightly different due to the randomness, the CPU speed,
+and the load of your computer.
+
+Please cite the above article if you find this tool useful. Please also read
+the COPYRIGHT before using this tool.
+
+
+System Requirement
+==================
+This experiment is supposed to be run on UNIX machines. The following
+commands are required:
+- UNIX commands (mv, cp, etc)
+- pdflatex
+- bash
+- g++4.5 or newer versions
+- wget
+- make
+- python2.6 or newer versions except python 3.x.
+
+
+Introduction
+============
+You can choose solvers/data sets/loss parameters for comparisons. See descriptions in
+subsequent sections. We implement L-BFGS, truncated Newton, Nesterov's accelerated
+gradient, and our common-directions method.
+Please note that some experiments are very time consuming. Finishing all of
+them may cost more than one week.
+
+
+Run All Experiments
+===================
+
+All things will be automatically done by typing
+
+% ./run_exp.sh
+
+in this directory. For other details, please read the following sections.
+
+
+
+Compare Single Inner Iteration and Multiple Inner Iterations per Outer Iteration of the Common-direction Method
+===============================================================================================================
+Edit 'single_multiple.py' and 'single_multiple_bias.py' to indicate loss parameter
+and data for comparison. Remove the loss parameters and data sets that you are not
+interested in. For example, change
+
+data = ['a9a','covtype.libsvm.binary','epsilon_normalized','kddb','news20.binary','rcv1_test.binary','url_combined','webspam_wc_normalized_trigram.svm']
+
+to
+
+data = ['a9a','kddb']
+
+In the same way, you can exclude some loss parameters from comparison. For example,
+change
+
+loss_param = [1e-3,1,1e+3]
+
+to
+
+loss_param = [1]
+
+After deciding data sets and loss parameters, you must prepare the data sets and
+install the solvers. Please see Sections 'Prepare Data Sets for Experiments',
+'Installation for Experiments' for more details.
+
+Type
+
+% python ./single_multiple.py
+% python ./single_multiple_bias.py
+
+to compare solvers. The results are stored in the 'figures/' directory.
+Note that the first file runs the experiment without a bias term, while the second
+file runs the experiment with a bias term.
+
+
+Compare Solvers for Logistic Regression
+=======================================
+Edit 'compare_methods.py' and 'compare_methods_bias.py' to indicate solvers, loss
+parameters and data sets for comparison.
+See the section for 'Compare Single Inner Iteration and Multiple Inner Iterations per
+Outer Iteration of the Common-direction Method' for more details.
+
+Type
+
+% python ./compare_methods.py
+% python ./compare_methods_bias.py
+
+to compare solvers. The results are stored in the 'figures/' directory.
+
+
+Prepare Data Sets for Experiments
+=================================
+
+Please change directory to data/, and type
+
+% ./get_data.sh
+
+All data sets will be automatically downloaded and preprocessed.
+
+
+Installation for Experiments
+============================
+To start the experiemtns, you must install the solvers first.
+To install the solvers, please type the following commands.
+
+% make -C commdir
+% make -C other_solver
