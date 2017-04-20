@@ -1,0 +1,148 @@
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{caption,tikz,pgfplots,subcaption,xspace}
+%\pgfplotsset{compat=1.8}
+\pgfplotsset{
+	/tikz/every picture/.append style={
+		trim axis left,
+		trim axis right,
+	}
+}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{external}
+\tikzexternalize[mode=list and make, %
+		prefix=tikz/,%
+	        verbose IO=false] 
+
+\def\newton{{\sf NEWTON}\xspace}
+\def\lbfgs{{\sf L-BFGS}\xspace}
+\def\bfgs{{\sf BFGS}\xspace}
+\def\ag{{\sf AG}\xspace}
+\def\commdir{{\sf CommDir}\xspace}
+\def\a9a{{\sf a9a}\xspace}
+\def\cov{{\sf covtype}\xspace}
+\def\news{{\sf news20}\xspace}
+\def\urlcombined{{\sf url}\xspace}
+\def\eps{{\sf epsilon}\xspace}
+\def\webspam{{\sf webspam}\xspace}
+\def\rcvt{{\sf rcv1t}\xspace}
+\def\kddb{{\sf KDD2010-b}\xspace}
+\newenvironment{spmatrix}%
+{\left ( \begin{smallmatrix}}%
+{\end{smallmatrix} \right )}%
+\newenvironment{svmatrix}%
+{\left \| \begin{smallmatrix}}%
+{\end{smallmatrix} \right \|}%
+
+\newcommand{\addTimeIfExist}[4]{ %
+	\IfFileExists{\detokenize{#2}}{
+	\addlegendentry{#1}
+	\addplot[#4] table
+		[col sep=comma, x=t, y=#3] {\detokenize{#2}};
+	}{
+		%\GenericWarning{Table \detokenize{#2} does not exist.}
+	}
+}
+\newcommand{\addPassIfExist}[4]{ %
+	\IfFileExists{\detokenize{#2}}{
+	\addlegendentry{#1}
+	\addplot[#4] table
+		[col sep=comma, x=pass, y=#3] {\detokenize{#2}};
+	}{
+		%\GenericWarning{Table \detokenize{#2} does not exist.}
+	}
+}
+
+\definecolor{brown1}{RGB}{245,222,179}
+\definecolor{brown2}{RGB}{205,133,63}
+
+\newcommand{\plotcommdirfunc}[2]{
+	\begin{subfigure}[b]{0.3\textwidth}
+		\caption{#2}
+		\resizebox{0.85\linewidth}{!}{
+		\tikzsetnextfilename{\detokenize{#1}.commdir.func}
+		\begin{tikzpicture}
+		\begin{axis}[
+			xmode=log,
+			ymode=log,
+			xlabel=Training Time (s),
+			ylabel=Relative Function Difference,
+			legend pos=south west,
+			]
+			\addplot[color=red,mark=x] table
+				[col sep=comma, x=t, y=func] {../table/\detokenize{#1}.single_commdir};
+			\addplot[color=blue,mark=*] table
+				[col sep=comma, x=t, y=func] {../table/\detokenize{#1}.commdir};
+				\legend{Single Inner Iteration, Multiple Inner Iterations}
+		\end{axis}
+		\end{tikzpicture}}
+	\end{subfigure}
+}
+
+\newcommand{\plotcommdirpass}[2]{
+	\begin{subfigure}[b]{0.3\textwidth}
+		\caption{#2}
+		\resizebox{0.85\linewidth}{!}{
+		\tikzsetnextfilename{\detokenize{#1}.commdir.pass}
+		\begin{tikzpicture}
+		\begin{axis}[
+			xmode=log,
+			ymode=log,
+			xlabel=Data Pass,
+			ylabel=Relative Function Difference,
+			legend pos=south west,
+			]
+			\addplot[color=red,mark=x] table
+				[col sep=comma, x=pass, y=func] {../table/\detokenize{#1}.single_commdir};
+			\addplot[color=blue,mark=*] table
+				[col sep=comma, x=pass, y=func] {../table/\detokenize{#1}.commdir};
+				\legend{Single Inner Iteration, Multiple Inner Iterations}
+		\end{axis}
+		\end{tikzpicture}}
+	\end{subfigure}
+}
+
+\newcommand{\plotfunc}[2]{
+	\begin{subfigure}[b]{0.3\textwidth}
+		\caption{#2}
+		\resizebox{0.85\linewidth}{!}{
+		\tikzsetnextfilename{\detokenize{#1}.func}
+		\begin{tikzpicture}
+		\begin{axis}[
+			xmode=log,
+			ymode=log,
+			xlabel=Training Time (s),
+			ylabel=Relative Function Difference,
+			legend pos=south west,
+			]
+			\addTimeIfExist{\commdir}{../table/#1.single_commdir}{func}{color=blue,mark=*}
+			\addTimeIfExist{\lbfgs 30}{../table/#1.lbfgs30}{func}{color=green,mark=o}
+			\addTimeIfExist{\bfgs}{table/#1.bfgs}{func}{color=black,mark=.}
+			\addTimeIfExist{\newton}{../table/#1.newton}{func}{color=YellowOrange,mark=square*}
+			\addTimeIfExist{\ag}{../table/#1.ag}{func}{color=red,mark=x}
+		\end{axis}
+		\end{tikzpicture}}
+	\end{subfigure}
+}
+
+\newcommand{\plotpass}[2]{
+	\begin{subfigure}[b]{0.32\textwidth}
+		\caption{#2}
+		\resizebox{0.85\linewidth}{!}{
+		\tikzsetnextfilename{\detokenize{#1}.func}
+		\begin{tikzpicture}
+		\begin{axis}[
+			xmode=log,
+			ymode=log,
+			xlabel=Training Time (s),
+			ylabel=Relative Function Difference,
+			legend pos=south west,
+			]
+			\addPassIfExist{\commdir}{../table/#1.single_commdir}{func}{color=blue,mark=*}
+			\addPassIfExist{\lbfgs 30}{../table/#1.lbfgs30}{func}{color=green,mark=o}
+			\addPassIfExist{\bfgs}{../table/#1.bfgs}{func}{color=black,mark=.}
+			\addPassIfExist{\newton}{../table/#1.newton}{func}{color=YellowOrange,mark=square*}
+			\addPassIfExist{\ag}{../table/#1.ag}{func}{color=red,mark=x}
+		\end{axis}
+		\end{tikzpicture}}
+	\end{subfigure}
+}
