@@ -9,7 +9,7 @@
 #define NORMALIZE
 
 /* Consider the problem
- * 
+ *
  * min_{w} 1/2 w'w + \sum_{i=1...l} loss(w'x_i, y_i)
  *
  */
@@ -87,7 +87,7 @@ void direction_grow(Direction *dir, int cap)
                 dir->px[i] = (double*) calloc((size_t)dir->l, sizeof(**dir->px));
                 dir->pdot[i] = (double*) calloc((size_t)(i+1), sizeof(**dir->pdot));
         }
-        
+
         dir->cap = cap;
 }
 
@@ -128,7 +128,7 @@ void direction_push(Direction *dir, const double *p, const double *px)
                 daxpy(dir->p[m], -t, dir->p[i], n);
                 daxpy(dir->px[m], -t, dir->px[i], l);
         }
-        double pnorm = dnrm2(p, n);
+        double pnorm = dnrm2(dir->p[m], n);
         dscal(dir->p[m], 1/pnorm, n);
         dscal(dir->px[m], 1/pnorm, l);
 
@@ -136,8 +136,8 @@ void direction_push(Direction *dir, const double *p, const double *px)
         for(int i=0; i<m; i++)
                 dir->pdot[m][i] = 0;
         printf("pdot[m][m] = %.3e\n", dir->pdot[m][m]);
-        if(dir->pdot[m][m] < EPS){
-                dir->m = 0;
+        if(pnorm < EPS){
+                //dir->m = 0;
                 return;
         }
 #else
@@ -243,7 +243,7 @@ void eval_PHP(double *D2, double **px, double **pdot, int l, int n, int m, doubl
         for(int i=0; i<m; i++)
                 for(int j=0; j<=i; j++)
                         PHP[i*m+j] = pdot[i][j];
-        
+
         // perform pair-wise tripple dot
 #if 1
         #define CSIZE 128
@@ -301,7 +301,7 @@ double function_value(Task t, double theta, double *dx, double wTw, double dTw, 
 // f(x) - f(x+\theta d) >= \sigma/2 * \lambda \norm{\theta d}^2
 void back_tracking_line_search(Task *t, double *w, double *d, double *dx, double *_theta, double *_fnew, double *act)
 {
-        
+
         int n = t->n;
         double wTw = ddot(w, w, n);
         double dTw = ddot(d, w, n);
@@ -341,7 +341,7 @@ void train_one(const Data data, const Param param, double *w)
 
         int64_t iter_st, iter_ed, one_st, one_time;
         int64_t g_time=0, co_time=0, cg_time=0;
-        
+
         one_st = wall_clock_ns();
 
         int n = data.n, l = data.l;
@@ -448,7 +448,7 @@ void train_one(const Data data, const Param param, double *w)
                 // print iteration info
                 iter_ed = wall_clock_ns();
                 printf("iter=%3d m=%d |g|=%.3e f=%.14e acc=%.2f%% "
-                        "time=%.4es\n", 
+                        "time=%.4es\n",
                                 iter+1, dir.m,
                                 gnorm, fval, acc*100.,
                                 wall_time_diff(iter_ed, iter_st));
